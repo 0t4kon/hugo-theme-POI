@@ -1,0 +1,49 @@
+{{ define "main" }}
+<!-- 时间轴专属样式 -->
+<style>
+.timeline { 
+  border-left: 3px solid #3182ce; 
+  padding-left: 2rem; 
+  margin: 2rem 0;
+}
+.timeline-item { 
+  position: relative; 
+  padding: 1.5rem 0;
+}
+.timeline-dot {
+  position: absolute;
+  left: -2.4rem;
+  top: 1.7rem;
+  width: 12px;
+  height: 12px;
+  background: #3182ce;
+  border-radius: 50%;
+}
+.timeline-date { 
+  color: #718096; 
+  font-size: 0.9rem; 
+}
+.timeline-title a { 
+  font-size: 1.1rem; 
+  color: #2d3748; 
+  text-decoration: none;
+}
+.timeline-title a:hover { color: #3182ce; }
+</style>
+
+<main class="content">
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+
+  <!-- 垂直时间轴（按发布时间倒序） -->
+  <div class="timeline">
+    {{ range .Site.RegularPages.ByDate.Reverse }}
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-date">{{ .Date.Format "2006-01-02" }}</div>
+      <div class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></div>
+    </div>
+    {{ end }}
+  </div>
+</main>
+{{ end }}
