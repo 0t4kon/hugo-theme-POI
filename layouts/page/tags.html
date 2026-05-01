@@ -25,9 +25,9 @@
   <!-- 标签云 -->
   <div class="tags-cloud">
     {{ range .Site.Taxonomies.tags.ByCount }}
-    <a href="{{ .Page.Permalink }}" class="tag-item">
+    <div class="tag-item">
       {{ .Page.Title }} <span class="tag-count">({{ .Count }})</span>
-    </a>
+    </div>
     {{ end }}
   </div>
 
