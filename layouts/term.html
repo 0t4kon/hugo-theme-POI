@@ -1,6 +1,5 @@
 {{ define "background" }}
-<div class="bg-layer__1"></div>
-<div class="bg-layer__2"></div>
+    <div class="bg-layer__1"></div>
 {{ end }}
 
 {{ define "main" }}
@@ -8,16 +7,12 @@
   <h1>{{ .Title }}</h1>
   <p>{{ .Description }}</p>
 
-  {{/* 👇 分页定义移到最前面 */}}
-  {{ $paginator := .Paginator }}
-
   {{ if ge (len .Pages) 2 }}
   <p>Posts are listed in reverse chronological order.</p>
   {{ end }}
 
   <div class="post-list">
-    {{/* 👇 只在第 1 页显示子章节（修复重复） */}}
-    {{ if eq $paginator.PageNumber 1 }}
+    {{/* 👇 第一步：显示 子章节 / 叶子包（比如 Tech 文件夹） */}}
     {{ range .Sections }}
     {{ partial "cards/machine-post.html" (dict
     "Date" .Date
@@ -25,9 +20,8 @@
     "Permalink" .RelPermalink
     ) }}
     {{ end }}
-    {{ end }}
 
-    {{/* 分页文章 */}}
+    {{/* 👇 第二步：显示 普通文章（原来的逻辑） */}}
     {{ range .Paginator.Pages }}
     {{ partial "cards/machine-post.html" (dict
     "Date" .Date
@@ -37,7 +31,8 @@
     {{ end }}
   </div>
 
-  {{/* 分页逻辑（完全不动，保持你的原样） */}}
+  {{/* 下面分页代码不动，保持原样 */}}
+  {{ $paginator := .Paginator }}
   {{ $adjacent_links := 2 }}
   {{ $max_links := (add (mul $adjacent_links 2) 1) }}
   {{ $lower_limit := (add $adjacent_links 1) }}
@@ -90,3 +85,4 @@
 
 </div>
 {{ end }}
+
