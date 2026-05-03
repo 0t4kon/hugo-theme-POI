@@ -1,34 +1,61 @@
-{{ define "main" }}
-<!-- 归档页面样式（直接内嵌，无需改外部CSS） -->
-<style>
-.archives-year { margin: 3rem 0 1rem; font-size: 1.5rem; color: #2d3748; }
-.archives-list { list-style: none; padding: 0; }
-.archives-item { 
-  padding: 0.8rem 0; 
-  border-bottom: 1px solid #eee; 
-  display: flex; 
-  gap: 1.5rem;
-}
-.archives-date { color: #718096; min-width: 6rem; }
-.archives-title a { color: #2d3748; text-decoration: none; }
-.archives-title a:hover { color: #3182ce; }
-</style>
-
-<main class="content">
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-
-  <!-- 按年份分组所有文章 -->
-  {{ range .Site.RegularPages.GroupByDate "2006" }}
-  <h2 class="archives-year">{{ .Key }} 年</h2>
-  <ul class="archives-list">
-    {{ range .Pages }}
-    <li class="archives-item">
-      <span class="archives-date">{{ .Date.Format "01-02" }}</span>
-      <span class="archives-title"><a href="{{ .Permalink }}">{{ .Title }}</a></span>
-    </li>
-    {{ end }}
-  </ul>
-  {{ end }}
-</main>
+{{ define "background" }}
+    <div class="bg-layer__1"></div>
+    <div class="bg-layer__2"></div>
 {{ end }}
+
+{{ define "main" }}
+
+  {{ $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+
+  {{ if site.Params.ShowAllPagesInArchive }}
+    {{ $pages = site.RegularPages }}
+  {{ end }}
+
+  {{ range $pages.GroupByPublishDate "2006" }}
+    {{ if ne .Key "0001" }}
+    <div class="archive-year">
+      {{- $year := replace .Key "0001" "" }}
+      <h2 class="archive-year-header" id="{{ $year }}">
+        <a class="archive-header-link" href="#{{ $year }}">
+          {{- $year -}}
+        </a>
+        <sup class="archive-count">&nbsp;{{ len .Pages }}</sup>
+      </h2>
+      {{- range .Pages.GroupByDate "January" }}
+      <div class="archive-month">
+        <h3 class="archive-month-header" id="{{ $year }}-{{ .Key }}">
+          <a class="archive-header-link" href="#{{ $year }}-{{ .Key }}">
+            {{- .Key -}}
+          </a>
+          <sup class="archive-count">&nbsp;{{ len .Pages }}</sup>
+        </h3>
+        <div class="archive-posts">
+          {{- range .Pages }}
+          {{- if eq .Kind "page" }}
+          <div class="archive-entry">
+            <h3 class="archive-entry-title entry-hint-parent">
+              {{- .Title | markdownify }}
+              {{- if .Draft }}
+              <span class="entry-hint" title="Draft">
+                <svg xmlns="http://www.w3.org/2000/svg" height="15" viewBox="0 -960 960 960" fill="currentColor">
+                  <path
+                    d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
+                </svg>
+              </span>
+              {{- end }}
+            </h3>
+            <div class="archive-meta">
+              {{/*partial "post_meta.html" . */}}
+            </div>
+            <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
+          </div>
+          {{- end }}
+          {{- end }}
+        </div>
+      </div>
+      {{- end }}
+    </div>
+    {{ end }}
+  {{ end }}
+
+{{ end }}{{/* end main */}}

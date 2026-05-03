@@ -14,7 +14,7 @@ module:
 # pagination
 pagination:
   pagerSize: 3
-  path: "blog"
+  path: "posts"
 
 markup:
   tableOfContents:

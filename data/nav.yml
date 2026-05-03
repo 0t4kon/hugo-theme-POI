@@ -1,7 +1,7 @@
 # Navigation data
 
-- name: Blog
-  path: /blog/
+- name: Posts
+  path: /posts/
 
 - name: Projects
   description: My Open-Source Projects

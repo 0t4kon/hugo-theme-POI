@@ -19,6 +19,7 @@
 }
 
 html {
+  scroll-padding-top: 40px; //让目录锚点跳到正确位置
   font-family: $font-stack-text;
   font-size: 112.5%;
   // @include respond-to('largest') { font-size: 112.5%; }

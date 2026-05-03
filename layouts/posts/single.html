@@ -11,7 +11,7 @@
 			<div class="row">
 				<div class="col order-1">
 					<div itemprop="articleBody">
-						{{ partial "blog/outdated.html" . }}
+						{{ partial "posts/outdated.html" . }}
 						{{ .Content }}
 					</div>
 				</div>
@@ -25,7 +25,7 @@
 			<hr aria-hidden="true">
 		</article>
 		<footer>
-      {{- partial "blog/footer.html" . -}}
+      {{- partial "posts/footer.html" . -}}
   	</footer>
 	</div>
 {{ end }}

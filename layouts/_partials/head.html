@@ -1,76 +1,41 @@
 <!-- Meta Data -->
 <meta charset="utf-8">
-{{ if and (eq .Section "blog") (eq .Kind "page") }}
-    <title>{{ .Title }} | {{ .Section | upper }}</title>
-{{ else }}
-    <title>{{ .Title }} | {{ .Site.Params.title }}</title>
-{{ end }}
-
-{{ if eq .Permalink "/" }}
-    <meta name="description" content="{{ .Site.Params.description }}">
-{{ else }}
-    <meta name="description" content="{{ .Description }}">
-{{ end }}
-
-{{ $keywords := delimit (uniq .Site.Params.keywords) ", " }}
-{{ if and (eq .Section "blog") (eq .Kind "page") }}
-    {{ $tags := delimit (uniq .Params.tags) ", " }}
-    <meta name="keywords" content="{{ $keywords }},blog{{ if gt (len $tags) 0 }},{{ $tags }}{{ end }}">
-{{ else }}
-    <meta name="keywords" content="{{ $keywords }}">
-{{ end }}
-
-<meta name="author" content="{{ .Site.Params.first }} {{ .Site.Params.last }}">
-<meta name="robots" content="index,follow">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{{- if hugo.IsProduction | or (eq site.Params.env "production") | and (ne .Params.robotsNoIndex true) }}
+<meta name="robots" content="index, follow">
+{{- else }}
+<meta name="robots" content="noindex, nofollow">
+{{- end }}
+{{- if .IsHome }}
+{{ with site.Params.keywords -}}<meta name="keywords" content="{{- range $i, $e := . }}{{ if $i }}, {{ end }}{{ $e }}{{ end }}">{{ end }}
+{{- else }}
+<meta name="keywords" content="{{ if .Params.keywords -}}
+    {{- range $i, $e := .Params.keywords }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- else }}
+    {{- range $i, $e := .Params.tags }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- end -}}">
+{{- end }}
+<title>{{ if .IsHome }}{{ else }}{{ if .Title }}{{ .Title }} | {{ end }}{{ end }}{{ site.Title }}</title>
+<meta name="description" content="{{- with .Description }}{{ . }}{{- else }}{{- if or .IsPage .IsSection}}
+    {{- .Summary | default (printf "%s - %s" .Title  site.Title) }}{{- else }}
+    {{- with site.Params.description }}{{ . }}{{- end }}{{- end }}{{- end -}}">
+<meta name="author" content="{{ (partial "author.html" . ) }}">
 <meta name="generator" content="Hugo v{{ hugo.Version }}">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#ba0000">
-
-<!-- Open Graph Data -->
-{{ if eq .Permalink "/" }}
-    <meta property="og:description" content="{{ .Site.Params.description }}">
-{{ else }}
-    <meta property="og:description" content="{{ .Description }}">
-{{ end }}
-
-{{ if and (eq .Section "blog") (eq .Kind "page") }}
-    <meta property="og:title" content="{{ .Title }} | {{ .Site.Params.blog_meta.title }}">
-    <meta property="og:site_name" content="{{ .Site.Params.blog_meta.title }}">
-    <meta property="og:url" content="{{ .Site.BaseURL }}{{ .Permalink }}">
-    <meta property="og:type" content="article">
-    <meta property="article:published_time" content="{{ .Date | dateFormat "2006-01-02T15:04:05Z" }}">
-    <meta property="article:modified_time" content="{{ if .Lastmod }}{{ .Lastmod | dateFormat "2006-01-02T15:04:05Z" }}{{ else }}{{ .Date | dateFormat "2006-01-02T15:04:05Z" }}{{ end }}">
-    <meta property="article:section" content="blog">
-    <meta property="og:image" content="{{ .Site.BaseURL }}/img/ogimage_blog.jpg">
-    <meta property="og:image:alt" content="{{ .Site.Params.blog_meta.title }}">
-{{ else }}
-    <meta property="og:title" content="{{ .Title }} | {{ .Site.Params.title }}">
-    <meta property="og:site_name" content="{{ .Site.Params.title }}">
-    <meta property="og:url" content="{{ .Permalink }}">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="{{ .Site.BaseURL }}/img/ogimage.jpg">
-    <meta property="og:image:alt" content="{{ .Site.Params.title }}">
-{{ end }}
-
-<meta property="og:image:width" content="1280">
-<meta property="og:image:height" content="640">
-<meta property="og:image:type" content="image/jpeg">
-<meta property="og:locale" content="en_US">
-
-
-
-<!-- Link Relationships 
-{{ if .Site.BaseURL }}
-  <base href="{{ .Site.BaseURL }}">
-{{ end }} -->
-<link rel="canonical" href="{{ .Site.BaseURL }}{{ .Permalink }}">
-<link rel="alternate" type="application/atom+xml" href="/feed.xml" title="{{ .Site.Params.blog_meta.title }} Feed">
-<link rel="me" href="https://bsky.app/profile/strappazzon.xyz">
+<link rel="canonical" href="{{ if .Params.canonicalURL -}} {{ trim .Params.canonicalURL " " }} {{- else -}} {{ .Permalink }} {{- end }}">
 
 <!-- Favicons -->
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" type="image/svg+xml" href="/img/favicons/favicon.svg" sizes="any">
-<link rel="apple-touch-icon" href="/img/favicons/favicon-180.png">
+<link rel="icon" href="{{ "favicon.ico" | absURL }}" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="{{ "img/favicons/favicon.svg" | absURL }}" sizes="any">
+<link rel="apple-touch-icon" href="{{ "img/favicons/favicon-180.png" | absURL }}">
+<meta name="theme-color" content="{{ site.Params.assets.theme_color | default "#ba0000" }}">
+
+<!-- RSS -->
+{{ range .AlternativeOutputFormats -}}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type | html }}" href="{{ .Permalink | safeURL }}" title="{{ .Name }}">
+{{ end -}}
+{{- range .AllTranslations -}}
+<link rel="alternate" hreflang="{{ .Lang }}" href="{{ .Permalink }}">
+{{ end -}}
+
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.bunny.net">
@@ -87,19 +52,58 @@
 <link rel="stylesheet" href="{{ $vendors.RelPermalink }}">
 <link rel="stylesheet" href="{{ $common.RelPermalink }}">
 
-
+{{- /* theme-toggle is enabled */}}
+{{- if (not site.Params.disableThemeToggle) }}
+    {{- /* theme is light */}}
+    {{- if (eq site.Params.defaultTheme "light") }}
+        <script>
+            if (localStorage.getItem("pref-theme") === "dark") {
+                document.querySelector("html").dataset.theme = 'dark';
+            }
+        </script>
+    {{- /* theme is dark */}}
+    {{- else if (eq site.Params.defaultTheme "dark") }}
+        <script>
+            if (localStorage.getItem("pref-theme") === "light") {
+                document.querySelector("html").dataset.theme = 'light';
+            }
+        </script>
+    {{- else }}
+        {{- /* theme is auto */}}
+        <script>
+            if (localStorage.getItem("pref-theme") === "dark") {
+           {{- /*document.querySelector("html").dataset.theme = 'dark'; */}}
+            } else if (localStorage.getItem("pref-theme") === "light") {
+           {{- /*document.querySelector("html").dataset.theme = 'light'; */}}
+            } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.querySelector("html").dataset.theme = 'dark';
+            } else {
+                document.querySelector("html").dataset.theme = 'poi';
+            }
+        </script>
+    {{- end }}
+{{- /* theme-toggle is disabled and theme is auto */}}
+{{- else if (and (ne site.Params.defaultTheme "light") (ne site.Params.defaultTheme "dark"))}}
+    <script>
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.querySelector("html").dataset.theme = 'dark';
+        } else {
+            document.querySelector("html").dataset.theme = 'poi';
+        }
+    </script>
+{{- end }}
 
 {{ $layout := .Layout }}
-{{ if and (eq .Section "blog") (eq .Kind "section") }}
-    {{ $scssPath := "css/blog/list.scss" }}
+{{ if and (eq .Section "posts") (eq .Kind "section") }}
+    {{ $scssPath := "css/posts/list.scss" }}
     {{ with resources.Get $scssPath }}
-    {{ $css := . | toCSS (dict "transpiler" "dartsass" "targetPath" "css/blog/list.css") }}
+    {{ $css := . | toCSS (dict "transpiler" "dartsass" "targetPath" "css/posts/list.css") }}
     <link rel="stylesheet" href="{{ $css.RelPermalink }}">
     {{ end }}
-{{ else if and (eq .Section "blog") (eq .Kind "page") }}
-    {{ $scssPath := "css/blog/single.scss" }}
+{{ else if and (eq .Section "posts") (eq .Kind "page") }}
+    {{ $scssPath := "css/posts/single.scss" }}
     {{ with resources.Get $scssPath }}
-    {{ $css := . | toCSS (dict "transpiler" "dartsass" "targetPath" "css/blog/single.css") }}
+    {{ $css := . | toCSS (dict "transpiler" "dartsass" "targetPath" "css/posts/single.css") }}
     <link rel="stylesheet" href="{{ $css.RelPermalink }}">
     {{ end }}
 {{ else }}
@@ -112,7 +116,7 @@
 
 
 <!-- Scripts -->
-{{ if and (eq .Section "blog") (eq .Kind "page") }}
+{{ if and (eq .Section "posts") (eq .Kind "page") }}
     {{ $script1 := resources.Get "js/clipboard.js" | js.Build }}
     <script src="{{ $script1.RelPermalink }}"></script>
     {{ if not .Params.lightbox }}

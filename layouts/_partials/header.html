@@ -4,7 +4,7 @@
 		<span class="separator" aria-hidden="true">///</span>
 	</div>
 	<div class="name">
-		{{ if eq .Layout "blog" }}
+		{{ if eq .Layout "posts" }}
 			{{ upper .Site.Params.blog_meta.title }}
 		{{ else }}
 			{{ upper .Site.Params.title }}
@@ -13,10 +13,5 @@
 </div>
 <!-- <p>Layout: {{ .Layout }} </p> -->
 {{ if ne .RelPermalink  "/" }}
-	<nav aria-label="Main navigation">
-		{{ if and (eq .Section "blog") (eq .Kind "page")}}
-			<a href="/blog/">Blog</a> |
-		{{ end }}
-		<a href="/" translate="no">Home</a>
-	</nav>
+	{{ partial "breadcrumbs.html" . }}
 {{ end }}
