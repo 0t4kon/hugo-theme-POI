@@ -1,10 +1,9 @@
 {{ define "background" }}
     <div class="bg-layer__1"></div>
-    <div class="bg-layer__2"></div>
 {{ end }}
 
 {{ define "main" }}
-
+<main class="archives-main">
   {{ $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
 
   {{ if site.Params.ShowAllPagesInArchive }}
@@ -45,7 +44,7 @@
               {{- end }}
             </h3>
             <div class="archive-meta">
-              {{/*partial "post_meta.html" . */}}
+              {{partial "post_meta.html" . }}
             </div>
             <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
           </div>
@@ -57,5 +56,5 @@
     </div>
     {{ end }}
   {{ end }}
-
+</main>
 {{ end }}{{/* end main */}}

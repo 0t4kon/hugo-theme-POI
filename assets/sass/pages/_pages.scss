@@ -54,10 +54,12 @@ footer {
 // jekyll-paginate-v2 plugin
 .pagination {
   display: flex;
-  justify-content: center;
-
+  /* 替换原来的 center 为 space-between */
+  justify-content: space-between; 
+  align-items: center;
   margin-top: 3rem;
   text-align: center;
+  width: 100%;
 
   li {
     display: inline;
